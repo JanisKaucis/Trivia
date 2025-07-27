@@ -1,12 +1,14 @@
 <?php
 
+use App\Http\Controllers\Trivia\QuestionController;
+use App\Http\Controllers\Trivia\TriviaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+Route::get('/', [TriviaController::class, 'index'])->name('home');
 
+Route::get('question', [QuestionController::class, 'getQuestion'])->name('question');
+Route::post('answer', [QuestionController::class, 'postAnswer'])->name('answer');
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
