@@ -23,6 +23,8 @@ class  TriviaService
 
         session(['answer' => $answer]);
 
+        Log::debug($answer);
+
         return $question;
     }
 }

@@ -7,6 +7,9 @@ import { onMounted, ref } from 'vue';
 
 const question = ref('');
 const errors = ref({});
+const form = ref({
+    answer: '',
+});
 
 onMounted(() => {
     getQuestion();
@@ -40,8 +43,10 @@ const submitForm = async () => {
         if (error.response?.status === 422) {
             errors.value = error.response.data.errors;
         }
-
     }
+    form.value = {
+        answer: '',
+    };
 };
 </script>
 
@@ -53,7 +58,7 @@ const submitForm = async () => {
                     <div>
                         <p>{{ question }}</p>
                         <div>
-                            <Input id="answer" type="number" />
+                            <Input v-model="form.answer" id="answer" type="number" />
                             <Button type="submit">Next</Button>
                         </div>
                         <p v-if="errors.answer" class="text-sm text-red-600">{{ errors.answer[0] }}</p>
