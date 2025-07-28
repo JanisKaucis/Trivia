@@ -27,8 +27,6 @@ class  TriviaService
         $allAnswers[] = $answer;
         shuffle($allAnswers);
 
-        Log::debug($answer);
-
         return
             [
                 'question' => $question,
