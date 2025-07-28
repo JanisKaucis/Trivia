@@ -78,7 +78,7 @@ class  TriviaService
         session()->flush();
     }
 
-    function generateWrongAnswers($correctAnswer, $count = 3, $rangePercent = 20)
+    function generateWrongAnswers($correctAnswer, $count = 3, $rangePercent = 20): array
     {
         $wrongAnswers = [];
 
