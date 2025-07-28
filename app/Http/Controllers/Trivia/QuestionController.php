@@ -17,14 +17,13 @@ class QuestionController extends Controller
         $this->service = $service;
     }
 
-    public function getQuestion(): \Illuminate\Http\JsonResponse
+    public function getTrivia(): \Illuminate\Http\JsonResponse
     {
-        $correctAnswerCount = session()->get('correctAnswerCount') ?? 0;
-        Log::debug($correctAnswerCount);
-        $question = $this->service->getTriviaQuestion();
+        $trivia = $this->service->getTriviaQuestion();
 
         return response()->json([
-            'question' => $question
+            'question' => $trivia['question'],
+            'answers' => $trivia['answers'],
         ]);
     }
     public function postAnswer(AnswerRequest $request): \Illuminate\Http\JsonResponse
@@ -48,12 +47,12 @@ class QuestionController extends Controller
             $this->service->forgetTriviaSessionValues();
 
             return response()->json([
-               'win' => 'You won, you answered '. env('TRIVIA_QUESTION_COUNT') .' questions correctly'
+               'win' => 'You won, you answered '. env('TRIVIA_QUESTION_COUNT') .' questions correctly!'
             ]);
         }
 
         session(['correctAnswerCount' => $correctAnswerCount]);
 
-        return $this->getQuestion();
+        return $this->getTrivia();
     }
 }

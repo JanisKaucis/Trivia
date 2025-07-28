@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
 
 class  TriviaService
 {
-    public function getTriviaQuestion(): string
+    public function getTriviaQuestion(): array
     {
         $triviaString = $this->getQuestionFromAPI();
 
@@ -21,9 +22,18 @@ class  TriviaService
 
         $this->saveTrivia($answer, $triviaString);
 
+        $wrongAnswers = $this->generateWrongAnswers($answer);
+        $allAnswers = $wrongAnswers;
+        $allAnswers[] = $answer;
+        shuffle($allAnswers);
+
         Log::debug($answer);
 
-        return $question;
+        return
+            [
+                'question' => $question,
+                'answers' => $allAnswers
+            ];
     }
 
     function getQuestionFromAPI(): bool|string
@@ -47,7 +57,7 @@ class  TriviaService
 
         if (session()->has('triviaStrings')) {
             session()->push('triviaStrings', $triviaString);
-        }else {
+        } else {
             session()->put('triviaStrings', [$triviaString]);
         }
     }
@@ -66,5 +76,23 @@ class  TriviaService
     public function forgetTriviaSessionValues(): void
     {
         session()->flush();
+    }
+
+    function generateWrongAnswers($correctAnswer, $count = 3, $rangePercent = 20)
+    {
+        $wrongAnswers = [];
+
+        $min = $correctAnswer * (1 - $rangePercent / 100);
+        $max = $correctAnswer * (1 + $rangePercent / 100);
+
+        while (count($wrongAnswers) < $count) {
+            $wrong = round(rand($min * 100, $max * 100) / 100);
+
+            if ($wrong != $correctAnswer && !in_array($wrong, $wrongAnswers)) {
+                $wrongAnswers[] = $wrong;
+            }
+        }
+
+        return $wrongAnswers;
     }
 }
