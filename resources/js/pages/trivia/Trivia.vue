@@ -6,6 +6,7 @@ import $ from 'jquery';
 import { onMounted, ref } from 'vue';
 
 const question = ref('');
+const message = ref('');
 const errors = ref({});
 const form = ref({
     answer: '',
@@ -38,6 +39,7 @@ const submitForm = async () => {
                     errors.value = response.data.errors;
                 }
                 question.value = data.question;
+                message.value = data.message;
             });
     } catch (error) {
         if (error.response?.status === 422) {
@@ -62,6 +64,7 @@ const submitForm = async () => {
                             <Button type="submit">Next</Button>
                         </div>
                         <p v-if="errors.answer" class="text-sm text-red-600">{{ errors.answer[0] }}</p>
+                        <p v-if="message" class="text-sm text-green-600">{{ message }}</p>
                     </div>
                 </div>
             </form>

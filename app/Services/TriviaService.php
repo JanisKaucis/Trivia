@@ -5,6 +5,27 @@ use Illuminate\Support\Facades\Log;
 
 class  TriviaService
 {
+    public function getTriviaQuestion(): string
+    {
+        $triviaString = $this->getQuestionFromAPI();
+
+        while ($this->checkIfTriviaRepeatsItself($triviaString)) {
+            $triviaString = $this->getTriviaQuestion();
+        }
+
+        $pattern = '/^([\d.+eE+-]+)\s(is(?:\s(?:a|the))?)\s(.+)$/';
+        preg_match($pattern, $triviaString, $triviaArray);
+
+        $answer = $triviaArray[1];
+        $question = $triviaArray[3];
+
+        $this->saveTrivia($answer, $triviaString);
+
+        Log::debug($answer);
+
+        return $question;
+    }
+
     function getQuestionFromAPI(): bool|string
     {
         $path = env('TRIVIA_API');
@@ -16,21 +37,34 @@ class  TriviaService
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);
         $retValue = curl_exec($ch);
         curl_close($ch);
-        $question = $this->saveTriviaQuestions($retValue);
 
-        return $question;
+        return $retValue;
     }
 
-    public function saveTriviaQuestions($retValue)
+    public function saveTrivia($answer, $triviaString): void
     {
-        $triviaString = explode(' is the ', $retValue);
-        $question = $triviaString[1];
-        $answer = $triviaString[0];
+        session(['answer' => $answer]);
 
-        session(['question' => $question,'answer' => $answer]);
+        if (session()->has('triviaStrings')) {
+            session()->push('triviaStrings', $triviaString);
+        }else {
+            session()->put('triviaStrings', [$triviaString]);
+        }
+    }
 
-        Log::debug($answer);
+    public function checkIfTriviaRepeatsItself($triviaString): bool
+    {
+        $triviaStrings = session()->get('triviaStrings') ?? [];
 
-        return $question;
+        if (in_array($triviaString, $triviaStrings)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function forgetTriviaSessionValues(): void
+    {
+        session()->flush();
     }
 }

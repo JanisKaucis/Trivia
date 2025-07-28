@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 
 class QuestionController extends Controller
 {
-    public $service;
+    public TriviaService $service;
     public function __construct(TriviaService $service)
     {
         $this->service = $service;
@@ -19,7 +19,7 @@ class QuestionController extends Controller
 
     public function getQuestion(): \Illuminate\Http\JsonResponse
     {
-        $question = $this->service->getQuestionFromAPI();
+        $question = $this->service->getTriviaQuestion();
 
         return response()->json([
             'question' => $question
@@ -29,18 +29,27 @@ class QuestionController extends Controller
     {
         $userAnswer = $request->input('answer');
         $correctAnswer = session()->get('answer');
-
         $correctAnswerCount = session()->get('correctAnswerCount') ?? 0;
 
         if ($userAnswer != $correctAnswer) {
-            session(['correctAnswerCount' => 0]);
+            $this->service->forgetTriviaSessionValues();
+
             throw ValidationException::withMessages([
                 'answer' => ['You lost, correct answer was: '. $correctAnswer .', you answered correctly to '.
-                    $correctAnswerCount . ($correctAnswerCount === 1 ? ' questions.' : ' question.')]
+                    $correctAnswerCount . ($correctAnswerCount == 1 ? ' question.' : ' questions.')]
             ]);
         }
 
         $correctAnswerCount++;
+
+        if ($correctAnswerCount == env('TRIVIA_QUESTION_COUNT')) {
+            $this->service->forgetTriviaSessionValues();
+
+            return response()->json([
+               'message' => 'You won, you answered '. env('TRIVIA_QUESTION_COUNT') .' questions correctly'
+            ]);
+        }
+
         session(['correctAnswerCount' => $correctAnswerCount]);
 
         return $this->getQuestion();
