@@ -21,7 +21,7 @@ class  TriviaService
         $question = $triviaString[1];
         $answer = $triviaString[0];
 
-        session(['answer' => $answer]);
+        session(['question' => $question,'answer' => $answer]);
 
         Log::debug($answer);
 

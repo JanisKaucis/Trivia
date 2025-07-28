@@ -23,7 +23,7 @@ class AnswerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'answer' => 'required'
+            'answer' => 'required|max:255'
         ];
     }
 }
