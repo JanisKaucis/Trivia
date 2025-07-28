@@ -6,11 +6,10 @@ import $ from 'jquery';
 import { onMounted, ref } from 'vue';
 
 const question = ref('');
-const message = ref('');
+const win = ref('');
+const lose = ref('');
 const errors = ref({});
-const form = ref({
-    answer: '',
-});
+const userAnswer = ref('');
 
 onMounted(() => {
     getQuestion();
@@ -39,16 +38,15 @@ const submitForm = async () => {
                     errors.value = response.data.errors;
                 }
                 question.value = data.question;
-                message.value = data.message;
+                win.value = data.win;
+               lose.value = data.lose;
             });
     } catch (error) {
         if (error.response?.status === 422) {
             errors.value = error.response.data.errors;
         }
     }
-    form.value = {
-        answer: '',
-    };
+    userAnswer.value = '';
 };
 </script>
 
@@ -60,11 +58,12 @@ const submitForm = async () => {
                     <div>
                         <p>{{ question }}</p>
                         <div>
-                            <Input v-model="form.answer" id="answer" type="number" />
+                            <Input v-model="userAnswer" id="answer" type="number" />
                             <Button type="submit">Next</Button>
                         </div>
                         <p v-if="errors.answer" class="text-sm text-red-600">{{ errors.answer[0] }}</p>
-                        <p v-if="message" class="text-sm text-green-600">{{ message }}</p>
+                        <p v-if="lose" class="text-sm text-red-600">{{ lose }}</p>
+                        <p v-if="win" class="text-sm text-green-600">{{ win }}</p>
                     </div>
                 </div>
             </form>

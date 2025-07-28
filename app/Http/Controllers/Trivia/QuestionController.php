@@ -19,6 +19,8 @@ class QuestionController extends Controller
 
     public function getQuestion(): \Illuminate\Http\JsonResponse
     {
+        $correctAnswerCount = session()->get('correctAnswerCount') ?? 0;
+        Log::debug($correctAnswerCount);
         $question = $this->service->getTriviaQuestion();
 
         return response()->json([
@@ -34,9 +36,9 @@ class QuestionController extends Controller
         if ($userAnswer != $correctAnswer) {
             $this->service->forgetTriviaSessionValues();
 
-            throw ValidationException::withMessages([
-                'answer' => ['You lost, correct answer was: '. $correctAnswer .', you answered correctly to '.
-                    $correctAnswerCount . ($correctAnswerCount == 1 ? ' question.' : ' questions.')]
+            return response()->json([
+                'lose' => 'You lost, correct answer was: '. $correctAnswer .', you answered correctly to '.
+                    $correctAnswerCount . ($correctAnswerCount == 1 ? ' question.' : ' questions.')
             ]);
         }
 
@@ -46,7 +48,7 @@ class QuestionController extends Controller
             $this->service->forgetTriviaSessionValues();
 
             return response()->json([
-               'message' => 'You won, you answered '. env('TRIVIA_QUESTION_COUNT') .' questions correctly'
+               'win' => 'You won, you answered '. env('TRIVIA_QUESTION_COUNT') .' questions correctly'
             ]);
         }
 
