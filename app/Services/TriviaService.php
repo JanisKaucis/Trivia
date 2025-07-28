@@ -16,7 +16,13 @@ class  TriviaService
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);
         $retValue = curl_exec($ch);
         curl_close($ch);
+        $question = $this->saveTriviaQuestions($retValue);
 
+        return $question;
+    }
+
+    public function saveTriviaQuestions($retValue)
+    {
         $triviaString = explode(' is the ', $retValue);
         $question = $triviaString[1];
         $answer = $triviaString[0];
