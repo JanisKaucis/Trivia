@@ -5,7 +5,7 @@ import { ref } from 'vue';
 
 const gameStatus = ref(0);
 const question = ref('');
-const answers = ref('');
+const answers = ref([]);
 const win = ref('');
 const lose = ref('');
 const errors = ref({});
@@ -24,36 +24,35 @@ function getQuestion() {
     });
 }
 
-const submitForm = async () => {
+const submitForm = () => {
     errors.value = {};
     const answer = userAnswer.value;
-    try {
-        await axios
-            .post(
-                route('answer', {
-                    answer: answer,
-                }),
-            )
-            .then(function (response) {
-                const data = response.data;
-                if (response.status !== 200) {
-                    errors.value = response.data.errors;
-                }
-                question.value = data.question;
-                win.value = data.win;
-                lose.value = data.lose;
-                answers.value = data.answers;
 
-                if (win.value || lose.value) {
-                    gameStatus.value = 2;
-                }
-            });
-    } catch (error) {
-        if (error.response?.status === 422) {
-            errors.value = error.response.data.errors;
-        }
-    }
-    userAnswer.value = '';
+    axios.post(route('answer', { answer: answer }))
+        .then((response) => {
+            const data = response.data;
+
+            if (response.status !== 200) {
+                errors.value = data.errors;
+                return;
+            }
+
+            question.value = data.question;
+            win.value = data.win;
+            lose.value = data.lose;
+            answers.value = data.answers;
+
+            if (win.value || lose.value) {
+                gameStatus.value = 2;
+            }
+
+            userAnswer.value = '';
+        })
+        .catch((error) => {
+            if (error.response?.status === 422) {
+                errors.value = error.response.data.errors;
+            }
+        });
 };
 </script>
 

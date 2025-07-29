@@ -76,7 +76,7 @@ class  TriviaService
         session()->flush();
     }
 
-    function generateWrongAnswers($correctAnswer, $count = 3, $rangePercent = 20): array
+    function generateWrongAnswers(float $correctAnswer, int $count = 3, float $rangePercent = 20): array
     {
         $wrongAnswers = [];
 
@@ -84,9 +84,9 @@ class  TriviaService
         $max = $correctAnswer * (1 + $rangePercent / 100);
 
         while (count($wrongAnswers) < $count) {
-            $wrong = round(rand($min * 100, $max * 100) / 100);
+            $wrong = round($min + mt_rand() / mt_getrandmax() * ($max - $min));
 
-            if ($wrong != $correctAnswer && !in_array($wrong, $wrongAnswers)) {
+            if (abs($wrong - $correctAnswer) > 1e-10 && !in_array($wrong, $wrongAnswers)) {
                 $wrongAnswers[] = $wrong;
             }
         }
