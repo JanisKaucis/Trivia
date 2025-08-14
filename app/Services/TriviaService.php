@@ -11,7 +11,7 @@ class  TriviaService
         $triviaString = $this->getQuestionFromAPI();
 
         while ($this->checkIfTriviaRepeatsItself($triviaString)) {
-            $triviaString = $this->getTriviaQuestion();
+            $triviaString = $this->getQuestionFromAPI();
         }
 
         $pattern = '/^([\d.+eE+-]+)\s(is(?:\s(?:a|the))?)\s(.+)$/';
